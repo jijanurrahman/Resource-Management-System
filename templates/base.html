@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Resource Management System{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/">
+                    <i class="fas fa-cubes"></i>
+                    ResourceHub
+                </a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                <a href="/resources/" class="nav-link">
+                    <i class="fas fa-box"></i>
+                    Resources
+                </a>
+                <a href="/profile/" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <a href="#" class="nav-link" id="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+                <a href="/login/" class="nav-link" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            </div>
+            <div class="user-info" id="user-info" style="display: none;">
+                <span class="user-name" id="user-name"></span>
+                <span class="user-role" id="user-role"></span>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-text">
+                Made with <i class="fas fa-heart"></i> by 
+                <a href="https://jijanurrahman.netlify.app" target="_blank" class="footer-link">
+                    Jijanur Rahman
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

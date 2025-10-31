@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Resource Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card" style="max-width: 800px; margin: 2rem auto;">
+        <div class="card-header" style="text-align: center; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h2 id="profile-name" style="margin-bottom: 0.5rem;">Loading...</h2>
+            <p id="profile-email" style="opacity: 0.9; margin-bottom: 1rem;"></p>
+            <span class="user-role" id="profile-role" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3);"></span>
+        </div>
+        
+        <div class="card-body">
+            <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);">
+                <i class="fas fa-info-circle"></i>
+                Account Information
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Username</label>
+                    <div id="profile-username" style="font-size: 1.125rem; color: var(--text-primary); margin-top: 0.25rem;">-</div>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--border-radius); border: 1px solid var(--border-color)">
+                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Email</label>
+                    <div id="profile-email-detail" style="font-size: 1.125rem; color: var(--text-primary); margin-top: 0.25rem;">-</div>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--border-radius); border: 1px solid var(--border-color)">
+                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Role</label>
+                    <div id="profile-role-detail" style="font-size: 1.125rem; color: var(--text-primary); margin-top: 0.25rem;">-</div>
+                </div>
+                
+                <div style="padding: 1rem; background: var(--bg-secondary); border-radius: var(--border-radius); border: 1px solid var(--border-color)">
+                    <label style="font-weight: 600; color: var(--text-secondary); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px;">Member Since</label>
+                    <div id="profile-joined" style="font-size: 1.125rem; color: var(--text-primary); margin-top: 0.25rem;">-</div>
+                </div>
+            </div>
+            
+            <div id="profile-stats">
+                <h3 style="margin-bottom: 1.5rem; color: var(--text-primary)">
+                    <i class="fas fa-chart-bar"></i>
+                    Statistics
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div class="feature-card" style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem;" id="resources-count">0</div>
+                        <div style="color: var(--text-secondary); font-weight: 500;">Resources Created</div>
+                    </div>
+                    
+                    <div class="feature-card" style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success-color); margin-bottom: 0.5rem;" id="days-active">0</div>
+                        <div style="color: var(--text-secondary); font-weight: 500;">Days Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    // Wait a bit for the main.js to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    if (!authToken || !currentUser) {
+        // Redirect to login if not authenticated
+        window.location.href = '/login/';
+        return;
+    }
+    
+    try {
+        // Verify authentication by fetching fresh profile data
+        const response = await makeAPIRequest('/auth/profile/');
+        if (!response || !response.ok) {
+            window.location.href = '/login/';
+            return;
+        }
+        
+        const userData = await response.json();
+        setCurrentUser(userData);
+        
+        // Populate profile information
+        document.getElementById('profile-name').textContent = `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || userData.username;
+        document.getElementById('profile-email').textContent = userData.email;
+        document.getElementById('profile-role').textContent = userData.role.toUpperCase();
+        document.getElementById('profile-username').textContent = userData.username;
+        document.getElementById('profile-email-detail').textContent = userData.email;
+        document.getElementById('profile-role-detail').textContent = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
+        
+        if (userData.date_joined) {
+            document.getElementById('profile-joined').textContent = formatDate(userData.date_joined);
+            
+            // Calculate days active
+            const joinDate = new Date(userData.date_joined);
+            const today = new Date();
+            const diffTime = Math.abs(today - joinDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            document.getElementById('days-active').textContent = diffDays;
+        }
+        
+        // Load resources count if user can create resources
+        if (userData.role === 'admin' || userData.role === 'staff') {
+            loadUserResourcesCount();
+        } else {
+            document.getElementById('profile-stats').style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Profile loading error:', error);
+        window.location.href = '/login/';
+    }
+});
+
+async function loadUserResourcesCount() {
+    try {
+        const resources = await getResources();
+        if (resources && Array.isArray(resources)) {
+            // Count resources created by current user
+            const userResources = resources.filter(resource => 
+                resource.created_by === currentUser.username || 
+                resource.created_by === currentUser.email ||
+                resource.created_by === `${currentUser.first_name} ${currentUser.last_name}`.trim()
+            );
+            document.getElementById('resources-count').textContent = userResources.length;
+        }
+    } catch (error) {
+        console.error('Failed to load user resources count:', error);
+    }
+}
+</script>
+{% endblock %}

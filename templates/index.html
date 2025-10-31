@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Resource Management System{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title animate-fadeInUp">
+            <i class="fas fa-cubes"></i>
+            Resource Management System
+        </h1>
+        <p class="hero-subtitle animate-fadeInUp delay-1">
+            Manage your resources efficiently with our modern, responsive platform
+        </p>
+        <div class="hero-buttons animate-fadeInUp delay-2" id="hero-buttons">
+            <a href="/resources/" class="btn btn-primary">
+                <i class="fas fa-box"></i>
+                View Resources
+            </a>
+            <a href="/register/" class="btn btn-secondary" id="get-started-btn">
+                <i class="fas fa-user-plus"></i>
+                Get Started
+            </a>
+        </div>
+    </div>
+    <div class="hero-animation">
+        <div class="floating-card">
+            <i class="fas fa-database"></i>
+            <h3>Secure Storage</h3>
+        </div>
+        <div class="floating-card delay-1">
+            <i class="fas fa-users"></i>
+            <h3>Team Collaboration</h3>
+        </div>
+        <div class="floating-card delay-2">
+            <i class="fas fa-chart-line"></i>
+            <h3>Analytics</h3>
+        </div>
+    </div>
+</div>
+
+<div class="features-section">
+    <div class="container">
+        <h2 class="section-title">Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Role-Based Access</h3>
+                <p>Secure access control with Admin, Staff, and User roles</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Responsive Design</h3>
+                <p>Perfect experience across all devices and screen sizes</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Fast & Modern</h3>
+                <p>Built with latest technologies for optimal performance</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    // Wait for main.js to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const getStartedBtn = document.getElementById('get-started-btn');
+    
+    // Update hero buttons based on authentication status
+    if (authToken && currentUser) {
+        // User is logged in, change "Get Started" to "Go to Profile"
+        if (getStartedBtn) {
+            getStartedBtn.href = '/profile/';
+            getStartedBtn.innerHTML = `
+                <i class="fas fa-user"></i>
+                View Profile
+            `;
+        }
+        
+        // Update subtitle to welcome user
+        const subtitle = document.querySelector('.hero-subtitle');
+        if (subtitle && currentUser.first_name) {
+            subtitle.textContent = `Welcome back, ${currentUser.first_name}! Manage your resources efficiently with our modern platform.`;
+        }
+    }
+});
+</script>
+{% endblock %}
